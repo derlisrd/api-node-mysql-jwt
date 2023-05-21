@@ -72,24 +72,31 @@ export const RegisterController = async(req,res)=>{
         let query = await conexion.query(`SELECT id_user,nombre_user,username_user,password_user FROM users WHERE email_user = ? or username_user = ?`,
         [email_user,username_user])
         let found = query[0].length
-        //console.log(found);
-        res.json({
-            email: found
-        })
-        /* if(found>0){
+        if(found>0){
             res.status(200).json({
                 response:false,
                 error:true,
-                message:'There is a email or username in the database. Try another.',
+                message:'There is an email or username in the database. Try another.',
                 found,
             })
         }else{
-            res.status(200).json({
-                response:true,
-                error:false,
-                results: query[0]
-            })
-        }  */
+            let email, username, hashedPassword;
+            conexion.query(
+                'INSERT INTO users (email_user,username_user,password_user) VALUES (?, ?, ?)',
+                [email,username,hashedPassword],
+                error => {
+                  if (error) {
+                    console.error('Error al guardar el usuario: ', error);
+                    res.sendStatus(500);
+                  } else {
+                    // Registro exitoso
+                    res.sendStatus(200);
+                  }
+                }
+              );
+
+
+        } 
     }catch (e) {
         res.status(404).json({
             error:true,
