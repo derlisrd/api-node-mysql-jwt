@@ -5,11 +5,7 @@ import { LoginController } from "../Controllers/AuthController.js";
 
 const router = Router()
 
-router.post('/auth/login',async(req,res)=>{ 
-    
-    res.json({"body": req.body.email})
-
-});
+router.post('/auth/login',async(req,res)=>{ await LoginController(req,res)});
 
 router.get('/:table',async(req,res)=>{await GetController(req,res)})
 
