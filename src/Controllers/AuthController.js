@@ -7,40 +7,42 @@ const { sign } = pkg;
 
 
 export const LoginController = async(req,res)=>{
-    const {email,password} = req.body
+    const {email_user,password_user} = req.body
     try {
-        let query = await conexion.query(`SELECT id_user,nombre_user,username_user,password_user FROM users WHERE email_user = ? or username_user = ?`,[email,email])
+        let query = await conexion.query(`SELECT id_user,nombre_user,username_user,password_user FROM users WHERE email_user = ? or username_user = ?`,
+        [email_user,email_user])
         let found = query[0].length
         if(found>0){
-            let {user_password} = query[0]
-            bcrypt.compare(password, user_password, (error, isMatch) => {
+            let first = query[0][0]
+            bcrypt.compare(password_user, first.password_user, (error, isMatch) => {
                 if (error) {
-                  res.json({
+                  res.status(500).json({
                     response:false,
                     error:true,
-                    message:'Password invalid'
+                    message:error
                   })
                 } else {
                   if (isMatch) {
-                    res.json({
-                        response:false,
-                        error:true,
-                        message:'Password invalid'
-                      })
+                    // Credenciales válidas
+                    res.status(200).json({
+                        found,
+                        first,
+                        results: query[0],
+                        response:true,
+                        error:false 
+                    })
                   } else {
                     // Credenciales inválidas
-                    res.json({
+                    res.status(401).json({
                         response:false,
                         error:true,
                         message:'Password invalid'
                       })
                   }
                 }
-              });
+              }); 
+            
         }
-        /* res.status(200).json({
-            results: query[0]
-        }) */
 
     } catch (e) {
         res.status(404).json({
@@ -51,6 +53,48 @@ export const LoginController = async(req,res)=>{
     }
 }
 
+
+
+
+
+
 export const RegisterController = async(req,res)=>{
-    const {email,password} = req.body
+    const {username_user,email_user,password_user} = req.body
+    if(!username_user || !email_user || !password_user){
+        res.status(404).json({
+            response:false,
+            error:true,
+            message:'Params not found'
+        })
+    }
+    try {
+        
+        let query = await conexion.query(`SELECT id_user,nombre_user,username_user,password_user FROM users WHERE email_user = ? or username_user = ?`,
+        [email_user,username_user])
+        let found = query[0].length
+        //console.log(found);
+        res.json({
+            email: found
+        })
+        /* if(found>0){
+            res.status(200).json({
+                response:false,
+                error:true,
+                message:'There is a email or username in the database. Try another.',
+                found,
+            })
+        }else{
+            res.status(200).json({
+                response:true,
+                error:false,
+                results: query[0]
+            })
+        }  */
+    }catch (e) {
+        res.status(404).json({
+            error:true,
+            response:false,
+            message: e
+        })
+    }
 }
