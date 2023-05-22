@@ -2,15 +2,31 @@
 import {conexion} from '../Database/Connect.js'
 import { ENV } from "../App/config.js";
 import pkg from 'jsonwebtoken';
-const { sign } = pkg;
+const { verify } = pkg;
 
 export const GetController = async(req,res)=>{
 
-    const token = sign({
-        sub : '1',
-        name: 'derlis',
-        exp: Date.now() + 60 *1000
-    }, ENV.SECRET_JWT )
+    const token_autho = req.headers.authorization
+    if(!token_autho){
+        res.status(401).json({
+            response:false,
+            error:true,
+            message:'Token not found'
+        })
+        return;
+    }
+
+    const token = token_autho.split(' ')[1]
+    const payload = verify(token,ENV.SECRET_JWT)
+
+    if(Date.now()> payload.exp){
+        res.status(401).json({
+            response:false,
+            error:true,
+            message:'Token expired'
+        })
+        return;
+    }
 
     const table = req.params.table
     try {
@@ -18,8 +34,7 @@ export const GetController = async(req,res)=>{
         res.status(200).json({
             response:true,
             error:false,
-            results:query[0],
-            token:token
+            results:query[0]
         })
     } catch (e) {
         res.status(404).json({

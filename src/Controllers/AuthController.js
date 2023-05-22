@@ -9,7 +9,7 @@ const { sign } = pkg;
 export const LoginController = async(req,res)=>{
     const {email_user,password_user} = req.body
     try {
-        let query = await conexion.query(`SELECT id_user,nombre_user,username_user,password_user FROM users WHERE email_user = ? or username_user = ?`,
+        let query = await conexion.query(`SELECT id_user,nombre_user,username_user,email_user,password_user FROM users WHERE email_user = ? or username_user = ?`,
         [email_user,email_user])
         let found = query[0].length
         if(found>0){
@@ -24,10 +24,11 @@ export const LoginController = async(req,res)=>{
                 } else {
                   if (isMatch) {
                     // Credenciales válidas
+                    const token = sign({sub:first.id_user,name:first.username_user,exp: Date.now()+60*1000},ENV.SECRET_JWT)
                     res.status(200).json({
                         found,
-                        first,
-                        results: query[0],
+                        first: { id_user:first.id_user, nombre_user:first.nombre_user,email_user:first.email_user,token_user:token},
+                        results: [{ id_user:first.id_user, nombre_user:first.nombre_user,email_user:first.email_user,token_user:token}],
                         response:true,
                         error:false 
                     })
@@ -59,13 +60,14 @@ export const LoginController = async(req,res)=>{
 
 
 export const RegisterController = async(req,res)=>{
-    const {username_user,email_user,password_user} = req.body
+    const {username_user,email_user,password_user,confirm_password} = req.body
     if(!username_user || !email_user || !password_user){
         res.status(404).json({
             response:false,
             error:true,
             message:'Params not found'
         })
+        return
     }
     try {
         
@@ -80,22 +82,28 @@ export const RegisterController = async(req,res)=>{
                 found,
             })
         }else{
-            let email, username, hashedPassword;
-            conexion.query(
-                'INSERT INTO users (email_user,username_user,password_user) VALUES (?, ?, ?)',
-                [email,username,hashedPassword],
-                error => {
-                  if (error) {
-                    console.error('Error al guardar el usuario: ', error);
-                    res.sendStatus(500);
-                  } else {
-                    // Registro exitoso
-                    res.sendStatus(200);
-                  }
+            
+            if(confirm_password !== password_user){
+                res.status(400).json({response:false,error:true,message:'password_user and confirm_password do not match'})
+                return
+            }
+            
+            bcrypt.hash(password_user, 10, (err, hashedPassword) => {
+                if(err){
+                    res.status(500).json({response:false,error:true,message:err})
+                    return
                 }
-              );
 
-
+               let inser =  conexion.query(
+                    'INSERT INTO users (email_user,username_user,password_user) VALUES (?, ?, ?)',
+                    [email_user,username_user,hashedPassword]
+                  );
+                res.status(200).json({
+                    response:true,
+                    error:false,
+                    results:inser
+                })
+            })
         } 
     }catch (e) {
         res.status(404).json({
