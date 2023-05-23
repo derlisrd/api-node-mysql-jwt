@@ -8,10 +8,18 @@ const { sign } = pkg;
 
 export const LoginController = async(req,res)=>{
     const {email_user,password_user} = req.body
+    if(!email_user || !password_user){
+        res.status(500).json({
+            response:false,
+            error:true,
+            message:`Params invalid`
+          })
+        return;
+    }
     try {
         let query = await conexion.query(`SELECT id_user,nombre_user,username_user,email_user,password_user FROM users WHERE email_user = ? or username_user = ?`,
-        [email_user,email_user])
-        let found = query[0].length
+        [email_user,email_user])        
+        let found = query[0].length || 0
         if(found>0){
             let first = query[0][0]
             bcrypt.compare(password_user, first.password_user, (error, isMatch) => {
@@ -43,6 +51,12 @@ export const LoginController = async(req,res)=>{
                 }
               }); 
             
+        }else{
+            res.status(404).json({
+                error:true,
+                response:false,
+                message: `User don't available`
+            })
         }
 
     } catch (e) {
@@ -60,7 +74,7 @@ export const LoginController = async(req,res)=>{
 
 
 export const RegisterController = async(req,res)=>{
-    const {username_user,email_user,password_user,confirm_password} = req.body
+    const {username_user,email_user,password_user,confirm_password,nombre_user} = req.body
     if(!username_user || !email_user || !password_user){
         res.status(404).json({
             response:false,
@@ -69,6 +83,15 @@ export const RegisterController = async(req,res)=>{
         })
         return
     }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email_user)) {
+            res.status(400).json({
+                response:false,
+                error:true,
+                message:'E-mail invalid!'
+            })
+            return
+        }
     try {
         
         let query = await conexion.query(`SELECT id_user,nombre_user,username_user,password_user FROM users WHERE email_user = ? or username_user = ?`,
@@ -83,27 +106,25 @@ export const RegisterController = async(req,res)=>{
             })
         }else{
             
-            if(confirm_password !== password_user){
-                res.status(400).json({response:false,error:true,message:'password_user and confirm_password do not match'})
-                return
-            }
-            
-            bcrypt.hash(password_user, 10, (err, hashedPassword) => {
-                if(err){
-                    res.status(500).json({response:false,error:true,message:err})
+                if(confirm_password !== password_user){
+                    res.status(400).json({response:false,error:true,message:'password_user and confirm_password do not match'})
                     return
                 }
-
-               let inser =  conexion.query(
-                    'INSERT INTO users (email_user,username_user,password_user) VALUES (?, ?, ?)',
-                    [email_user,username_user,hashedPassword]
-                  );
-                res.status(200).json({
-                    response:true,
-                    error:false,
-                    results:inser
-                })
-            })
+                
+                const hash = bcrypt.hashSync(password_user, 10);
+                    
+                    let resultInsert = await conexion.query(
+                        'INSERT INTO users (email_user,username_user,password_user,nombre_user) VALUES (?, ?, ?, ?);',
+                        [email_user,username_user,hash,nombre_user]
+                      );
+                   
+                    res.status(200).json({
+                        response:true, error:false,
+                        message:"Register!", 
+                        last_id: resultInsert[0].insertId
+                    })
+                
+            
         } 
     }catch (e) {
         res.status(404).json({
@@ -113,3 +134,5 @@ export const RegisterController = async(req,res)=>{
         })
     }
 }
+
+
