@@ -1,42 +1,33 @@
 
 import {conexion} from '../Database/Connect.js'
-import { ENV } from "../App/config.js";
-import pkg from 'jsonwebtoken';
-const { verify } = pkg;
 
 export const GetController = async(req,res)=>{
 
-    const token_autho = req.headers.authorization
-    if(!token_autho){
-        res.status(401).json({
-            response:false,
-            error:true,
-            message:'Token not found'
-        })
-    }
+    const {table} = req.params
 
-    const token = token_autho.split(' ')[1]
-    const payload = verify(token,ENV.SECRET_JWT)
-
-    if(Date.now()> payload.exp){
-        return res.status(401).json({
-            response:false,
-            error:true,
-            message:'Token expired'
-        })
-        
-    }
-
-    const table = req.params.table
-    try {
-        let query = await conexion.query(`SELECT * FROM ${table}`);    
-        res.status(200).json({
+    try {        
+        let fields= req.query.fields ?? '*'
+        let size = req.query.size ?? '60'
+        let page = req.query.page ?? '0'
+        let where = 'WHERE 1'
+        if(req.query.where){
+            let spliteo =   (req.query.where).split(',')
+            where = 'where '
+            spliteo.forEach(elm=>{
+                where += `${elm}`
+            })
+        }
+        let sql = `SELECT ${fields} FROM ${table} ${where} LIMIT ${page},${size};`
+        let query = await conexion.query(sql);    
+        return res.status(200).json({
+            found: query[0].length,
             response:true,
             error:false,
+            first: query[0][0],
             results:query[0]
         })
     } catch (e) {
-        res.status(404).json({
+        return res.status(404).json({
             error:true,
             response:false,
             message: e
