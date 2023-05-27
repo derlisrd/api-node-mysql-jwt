@@ -15,6 +15,9 @@ router.post('/auth/register',AuthController.register);
 router.post('/auth/checktoken',AuthController.checkToken);
 router.post('/auth/refreshtoken',AuthController.refreshToken);
 router.get('/users',auth,UserController.getAll)
+router.get('/users/:id',auth,UserController.findOne)
+router.put('/users/:id',auth,UserController.update)
+router.put('/users/password/:id',UserController.updatepassword)
 
 router.post('/:table',auth,PostController)
 
