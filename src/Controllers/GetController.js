@@ -17,6 +17,9 @@ export const GetController = async(req,res)=>{
                 where += `${elm}`
             })
         }
+        if(req.query.sort){
+            
+        }
         let sql = `SELECT ${fields} FROM ${table} ${where} LIMIT ${page},${size};`
         let query = await conexion.query(sql);    
         return res.status(200).json({

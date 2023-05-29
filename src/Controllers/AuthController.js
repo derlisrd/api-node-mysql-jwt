@@ -4,6 +4,7 @@ import { ENV } from "../App/config.js";
 import { dateFormatNowYMDHMS } from '../App/helpers.js';
 import pkg from 'jsonwebtoken';
 import { compareAsync } from '../Middleware/bcrypt.js';
+import { UserModel } from '../Models/UserModel.js';
 const { sign,verify } = pkg;
 
 const TOKEN_TIME_EXPIRED =  Date.now()+1000*60* 150 
@@ -15,6 +16,8 @@ export class AuthController {
             return res.status(500).json(notfound(`Params invalid`))
         }
         try {
+            let query2 = await UserModel.findOne({where:{username_user: email_user}})
+            res.json({query2})
             let query = await conexion.query(`SELECT id_user,nombre_user,username_user,email_user,password_user,try_user,last_try_login_user FROM users WHERE email_user = ? or username_user = ?`,
             [email_user,email_user])        
             let found = query[0].length || 0
@@ -26,7 +29,7 @@ export class AuthController {
                 let diff = Math.round(((date_now - last_try_date) / 60000))
                 if(try_user>6  && diff<15 ){
                     let intente = 15 - diff
-                    return res.status(401).json({response:false,error:true,message:`User has been blocked. Try again about ${intente} minute(s)`})
+                    return res.status(401).json({response:false,error:true,message:`Try again about ${intente} minute(s)`})
                 }
                 
                 
@@ -34,12 +37,12 @@ export class AuthController {
                 let datanow = dateFormatNowYMDHMS()
                 if(!isMatch){
                     await conexion.query(`UPDATE users SET last_try_login_user = ?, try_user = try_user + 1 where id_user=${first.id_user}`,[datanow])
-                    return res.status(401).json(notfound('Password invalid!'))
+                    return res.status(401).json(notfound('Invalid credentials'))
                 }
                 
                 const token = sign({sub:first.id_user,name:first.username_user,exp: TOKEN_TIME_EXPIRED},ENV.SECRET_JWT)
                 await conexion.query(`UPDATE users SET last_login_user = ?, last_try_login_user=?, try_user=0 where id_user=${first.id_user}`,[datanow,datanow])
-                return res.status(200).json({
+                return res.json({
                             found,
                             first: { id_user:first.id_user, nombre_user:first.nombre_user,email_user:first.email_user,token_user:token},
                             results: [{ id_user:first.id_user, nombre_user:first.nombre_user,email_user:first.email_user,token_user:token}],
@@ -48,7 +51,7 @@ export class AuthController {
                         })
                 
             }else{
-               return res.status(404).json(notfound(`User don't available`))
+               return res.status(404).json(notfound(`invalid credentials`))
             }
     
         } catch (e) {
@@ -95,7 +98,7 @@ export class AuthController {
                             [email_user,username_user,hash,nombre_user]
                           );
                        
-                       return res.status(200).json({
+                       return res.json({
                             response:true, error:false,
                             message:"Register!", 
                             last_id: resultInsert[0].insertId
