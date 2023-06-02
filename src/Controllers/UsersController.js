@@ -21,8 +21,8 @@ export class UserController {
     }
     static getAll = async(req,res)=>{
         try {
-            let size = parseInt(req.query.size) ?? 60
-            let page = parseInt(req.query.page) ?? 0        
+            let size = parseInt(req.query.size ?? 60)
+            let page = parseInt(req.query.page ?? 0)        
             let results = await conexion.query(`SELECT id_user,username_user,email_user,nombre_user,try_user,rol_user FROM users LIMIT ?,?`,[page,size])
             return res.status(200).json(found(results))
         } catch (e) {

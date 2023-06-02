@@ -4,7 +4,7 @@ import { ENV } from "../App/config.js";
 import { dateFormatNowYMDHMS } from '../App/helpers.js';
 import pkg from 'jsonwebtoken';
 import { compareAsync } from '../Middleware/bcrypt.js';
-import { UserModel } from '../Models/UserModel.js';
+//import { UserModel } from '../Models/UserModel.js';
 const { sign,verify } = pkg;
 
 const TOKEN_TIME_EXPIRED =  Date.now()+1000*60* 150 
@@ -16,8 +16,8 @@ export class AuthController {
             return res.status(500).json(notfound(`Params invalid`))
         }
         try {
-            let query2 = await UserModel.findOne({where:{username_user: email_user}})
-            res.json({query2})
+            /* let query2 = await UserModel.findOne({where:{username_user: email_user}})
+            res.json({query2}) */
             let query = await conexion.query(`SELECT id_user,nombre_user,username_user,email_user,password_user,try_user,last_try_login_user FROM users WHERE email_user = ? or username_user = ?`,
             [email_user,email_user])        
             let found = query[0].length || 0
