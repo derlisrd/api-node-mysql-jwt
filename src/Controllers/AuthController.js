@@ -1,9 +1,10 @@
 import {conexion} from '../Database/Connect.js'
-import {found,notfound} from "./ResponseController.js"
+import {notfound} from "./ResponseController.js"
 import { ENV } from "../App/config.js";
 import { dateFormatNowYMDHMS } from '../App/helpers.js';
 import pkg from 'jsonwebtoken';
 import { compareAsync } from '../Middleware/bcrypt.js';
+import bcrypt from 'bcrypt'
 //import { UserModel } from '../Models/UserModel.js';
 const { sign,verify } = pkg;
 
@@ -91,23 +92,24 @@ export class AuthController {
                         return res.status(400).json({response:false,error:true,message:'password_user and confirm_password do not match'})
                     }
                     
-                    const hash = bcrypt.hashSync(password_user, 10);
-                        
-                        let resultInsert = await conexion.query(
+                    const hash =  bcrypt.hashSync(password_user, 10);
+                    const valores = [email_user,username_user,hash,nombre_user];
+                    
+                    let resultInsert = await conexion.query(
                             'INSERT INTO users (email_user,username_user,password_user,nombre_user) VALUES (?, ?, ?, ?);',
-                            [email_user,username_user,hash,nombre_user]
-                          );
+                            valores
+                    );
                        
                        return res.json({
                             response:true, error:false,
                             message:"Register!", 
                             last_id: resultInsert[0].insertId
-                        })
+                        }) 
                     
                 
             } 
         }catch (e) {
-           return res.status(404).json(found(e))
+           return res.status(404).json(notfound(e))
         }
     }
 
