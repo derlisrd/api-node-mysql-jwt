@@ -10,6 +10,8 @@ import { UserController } from "../Controllers/UsersController.js";
 
 const router = Router()
 
+router.get('/',GetController.notFound)
+
 router.post('/auth/login',AuthController.login);
 router.post('/auth/register',AuthController.register);
 router.post('/auth/checktoken',AuthController.checkToken);
@@ -25,8 +27,8 @@ router.put('/:table/:id',auth,PutController)
 
 router.delete('/:table/:id',auth,DeleteController)
 
-router.get('/:table',auth, GetController)
-router.get('/:table/:id',auth,GetController)
+router.get('/:table',auth, GetController.findAll)
+router.get('/:table/:id',auth,GetController.findOne)
 
 
 export default router;
