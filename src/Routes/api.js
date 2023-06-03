@@ -6,14 +6,15 @@ import { PutController } from "../Controllers/PutController.js";
 import { DeleteController } from "../Controllers/DeleteController.js";
 import auth from "../Middleware/auth.js";
 import { UserController } from "../Controllers/UsersController.js";
+import apikey from "../Middleware/apikey.js";
 
 
 const router = Router()
 
-router.get('/',GetController.notFound)
+router.get('/',apikey,GetController.notFound)
 
-router.post('/auth/login',AuthController.login);
-router.post('/auth/register',AuthController.register);
+router.post('/auth/login',apikey,AuthController.login);
+router.post('/auth/register',apikey,AuthController.register);
 router.post('/auth/checktoken',AuthController.checkToken);
 router.post('/auth/refreshtoken',AuthController.refreshToken);
 router.get('/users',auth,UserController.getAll)
@@ -30,5 +31,7 @@ router.delete('/:table/:id',auth,DeleteController)
 router.get('/:table',auth, GetController.findAll)
 router.get('/:table/:id',auth,GetController.findOne)
 
+
+router.post('/upload',auth,)
 
 export default router;
