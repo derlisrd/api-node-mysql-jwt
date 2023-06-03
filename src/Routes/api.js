@@ -32,6 +32,6 @@ router.get('/:table',auth, GetController.findAll)
 router.get('/:table/:id',auth,GetController.findOne)
 
 
-router.post('/upload',auth,)
+//router.post('/upload',auth,)
 
 export default router;
