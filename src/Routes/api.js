@@ -7,8 +7,9 @@ import { DeleteController } from "../Controllers/DeleteController.js";
 import { UserController } from "../Controllers/UsersController.js";
 import auth from "../Middleware/auth.js";
 import apikey from "../Middleware/apikey.js";
-//import UploadController from "../Controllers/UploadController.js";
-import multer from "multer";
+import UploadController from "../Controllers/UploadController.js";
+import singleUpload from "../Middleware/multerMiddleware.js";
+
 
 const router = Router()
 
@@ -32,26 +33,6 @@ router.delete('/:table/:id',auth,DeleteController)
 router.get('/:table',auth, GetController.findAll)
 router.get('/:table/:id',auth,GetController.findOne)
 
-
-
-        //fileUpload({createParentPath:true})
-        const fileStorage = multer.diskStorage({
-            destination: (req,file,cb)=>{
-                cb(null,'./uploads')
-            },
-            filename:(req,file,cb)=>{
-                cb(null,Date.now() + '--'+ file.originalname)
-            }
-        })
-        const upload = multer({storage: fileStorage})
-
-        
-    
-
-
-router.post('/upload/image',upload.single('image'),(req,res)=>{
-    console.log(req.file);
-    res.send("upload")
-})
+router.post('/upload/image',auth, singleUpload,UploadController.simple)
 
 export default router;
