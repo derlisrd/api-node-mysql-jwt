@@ -7,7 +7,7 @@ import { DeleteController } from "../Controllers/DeleteController.js";
 import { UserController } from "../Controllers/UsersController.js";
 import {UploadController} from "../Controllers/UploadController.js";
 import auth from "../Middleware/auth.js";
-import singleUpload from "../Middleware/multerMiddleware.js";
+//import singleUpload from "../Middleware/multerMiddleware.js";
 
 const router = Router()
 
@@ -31,6 +31,7 @@ router.delete('/:table/:id',auth,DeleteController)
 router.get('/:table',auth, GetController.findAll)
 router.get('/:table/:id',auth,GetController.findOne)
 
-router.post('/upload/image/:table?',auth,singleUpload,UploadController)
+//router.post('/upload/image/:table?',auth,singleUpload,UploadController.single)
+router.post('/upload/image/:table?',auth,UploadController.singleImage)
 
 export default router;

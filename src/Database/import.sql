@@ -18,5 +18,6 @@ CREATE TABLE `images` (
   id_image bigint(20) not null primary key AUTO_INCREMENT,
   name_image text not null,
   url_image text not null,
+  static_image text not null,
   `updated_at` datetime DEFAULT current_timestamp()
 );

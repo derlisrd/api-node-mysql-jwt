@@ -4,7 +4,8 @@ import { notfound } from './ResponseController.js'
 
 export class GetController {
     static findAll = async(req,res)=>{
-        try {        
+        try {
+                    
             let {table} = req.params
             let fields= '*'
             let size = parseInt(req.query.size ?? 60)
@@ -51,7 +52,8 @@ export class GetController {
                 response:true,
                 error:false,
                 first: query[0][0],
-                results:query[0]
+                results:query[0],
+                url: req.protocol
             })
         } catch (e) {
             return res.status(401).json(notfound(e))

@@ -1,18 +1,20 @@
 import express from "express";
+import fileUpload from "express-fileupload";
+import cors from 'cors'
 import router from "./Routes/api.js";
 import { ENV } from "./App/config.js";
-import cors from 'cors'
 import apikey from "./Middleware/apikey.js";
-//import fileUpload from "express-fileupload";
 
 const app = express()
 app.use(cors({origin:'*'}))
 app.use(express.json())
 app.use(express.urlencoded({extended:false}))
-//app.use(fileUpload)
+
+
 
 //images
-app.use('/img/', express.static(ENV.UPLOAD_PATH));
+app.use(fileUpload())
+app.use('/uploads/img/', express.static(ENV.UPLOAD_PATH));
 
 //principal
 app.use('/', apikey, router)
