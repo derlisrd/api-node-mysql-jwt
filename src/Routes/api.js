@@ -5,18 +5,16 @@ import { PostController } from "../Controllers/PostController.js";
 import { PutController } from "../Controllers/PutController.js";
 import { DeleteController } from "../Controllers/DeleteController.js";
 import { UserController } from "../Controllers/UsersController.js";
+import {UploadController} from "../Controllers/UploadController.js";
 import auth from "../Middleware/auth.js";
-import apikey from "../Middleware/apikey.js";
-import UploadController from "../Controllers/UploadController.js";
 import singleUpload from "../Middleware/multerMiddleware.js";
-
 
 const router = Router()
 
-router.get('/',apikey,GetController.notFound)
+router.get('/',GetController.notFound)
 
-router.post('/auth/login',apikey,AuthController.login);
-router.post('/auth/register',apikey,AuthController.register);
+router.post('/auth/login',AuthController.login);
+router.post('/auth/register',AuthController.register);
 router.post('/auth/checktoken',AuthController.checkToken);
 router.post('/auth/refreshtoken',AuthController.refreshToken);
 router.get('/users',auth,UserController.getAll)
@@ -33,6 +31,6 @@ router.delete('/:table/:id',auth,DeleteController)
 router.get('/:table',auth, GetController.findAll)
 router.get('/:table/:id',auth,GetController.findOne)
 
-router.post('/upload/image',auth, singleUpload,UploadController.simple)
+router.post('/upload/image',auth,singleUpload,UploadController)
 
 export default router;

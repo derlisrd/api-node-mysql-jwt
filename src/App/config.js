@@ -12,6 +12,7 @@ export const ENV = {
     SECRET_JWT: process.env.SECRET_JWT,
     SECRET_JWT_REFRESH: process.env.SECRET_JWT_REFRESH,
     X_API_KEY: process.env.X_API_KEY,
-    TOKEN_EXPIRED_MINUTES: process.env.TOKEN_EXPIRED_MINUTES
+    TOKEN_EXPIRED_MINUTES: process.env.TOKEN_EXPIRED_MINUTES,
+    UPLOAD_PATH: process.env.UPLOAD_PATH
 }
 
