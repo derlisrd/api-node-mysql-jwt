@@ -31,6 +31,6 @@ router.delete('/:table/:id',auth,DeleteController)
 router.get('/:table',auth, GetController.findAll)
 router.get('/:table/:id',auth,GetController.findOne)
 
-router.post('/upload/image',auth,singleUpload,UploadController)
+router.post('/upload/image/:table?',auth,singleUpload,UploadController)
 
 export default router;
