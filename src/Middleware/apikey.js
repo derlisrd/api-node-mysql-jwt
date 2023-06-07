@@ -3,7 +3,7 @@ import { ENV } from "../App/config.js";
 
 export default function (req, res, next){
     try {        
-        const api_key = req.headers['x-api-key'] ?? '';
+        const api_key = req.headers['x-api-key'] ?? null;
         
         if(api_key!==ENV.X_API_KEY)
         {
